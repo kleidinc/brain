@@ -15,6 +15,10 @@ pub enum Commands {
         #[command(subcommand)]
         source: IndexCommands,
     },
+    Update {
+        #[command(subcommand)]
+        action: UpdateCommands,
+    },
     Query {
         query: String,
         #[arg(short, long, default_value = "5")]
@@ -55,4 +59,19 @@ pub enum IndexCommands {
         path: PathBuf,
     },
     Defaults,
+}
+
+#[derive(Subcommand)]
+pub enum UpdateCommands {
+    Check {
+        #[arg(short, long)]
+        json: bool,
+    },
+    Run {
+        #[arg(short, long)]
+        force: bool,
+        #[arg(short, long)]
+        json: bool,
+    },
+    Status,
 }

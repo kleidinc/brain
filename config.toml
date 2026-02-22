@@ -24,6 +24,13 @@ temperature = 0.7
 host = "127.0.0.1"
 port = 8080
 
+[scheduler]
+check_interval_hours = 168
+download_window_start = 22
+download_window_end = 8
+timezone = "Europe/Moscow"
+metadata_file = "data/source_metadata.json"
+
 [sources]
 repos_path = "repos"
 

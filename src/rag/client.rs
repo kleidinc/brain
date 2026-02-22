@@ -55,13 +55,8 @@ impl MistralRsClient {
         };
 
         let url = format!("{}/v1/chat/completions", self.base_url);
-        
-        let response = self
-            .client
-            .post(&url)
-            .json(&request)
-            .send()
-            .await?;
+
+        let response = self.client.post(&url).json(&request).send().await?;
 
         if !response.status().is_success() {
             let error = response.text().await?;
@@ -88,12 +83,8 @@ impl MistralRsClient {
 
     pub async fn health_check(&self) -> Result<bool> {
         let url = format!("{}/v1/models", self.base_url);
-        
-        let response = self
-            .client
-            .get(&url)
-            .send()
-            .await?;
+
+        let response = self.client.get(&url).send().await?;
 
         Ok(response.status().is_success())
     }

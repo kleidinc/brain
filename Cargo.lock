@@ -671,6 +671,7 @@ dependencies = [
  "candle-nn",
  "candle-transformers",
  "chrono",
+ "chrono-tz",
  "clap",
  "directories",
  "futures",

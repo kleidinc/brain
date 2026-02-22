@@ -1,8 +1,8 @@
-use anyhow::Result;
 use crate::embedding::EmbeddingModel;
-use crate::storage::{VectorStore, SearchResult, DocumentWithEmbedding};
 use crate::rag::MistralRsClient;
 use crate::rag::client::Message;
+use crate::storage::{DocumentWithEmbedding, SearchResult, VectorStore};
+use anyhow::Result;
 use serde::Serialize;
 
 pub struct RagPipeline {
@@ -48,14 +48,7 @@ impl RagPipeline {
         let context = results
             .iter()
             .enumerate()
-            .map(|(i, r)| {
-                format!(
-                    "[Context {} - {}]:\n{}\n",
-                    i + 1,
-                    r.file_path,
-                    r.content
-                )
-            })
+            .map(|(i, r)| format!("[Context {} - {}]:\n{}\n", i + 1, r.file_path, r.content))
             .collect::<Vec<_>>()
             .join("\n---\n");
 
@@ -105,14 +98,7 @@ Always cite which context(s) you used in your answer."#;
             let context = results
                 .iter()
                 .enumerate()
-                .map(|(i, r)| {
-                    format!(
-                        "[Context {} - {}]:\n{}\n",
-                        i + 1,
-                        r.file_path,
-                        r.content
-                    )
-                })
+                .map(|(i, r)| format!("[Context {} - {}]:\n{}\n", i + 1, r.file_path, r.content))
                 .collect::<Vec<_>>()
                 .join("\n---\n");
 
@@ -140,10 +126,7 @@ Always cite which context(s) you used in your answer."#;
             self.llm_client.chat(messages).await?
         };
 
-        Ok(QueryResponse {
-            answer,
-            sources,
-        })
+        Ok(QueryResponse { answer, sources })
     }
 
     pub fn vector_store(&self) -> &VectorStore {

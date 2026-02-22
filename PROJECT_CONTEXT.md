@@ -114,6 +114,21 @@ base_url = "http://localhost:1234"
 2. **No incremental updates:** Re-indexing adds duplicates; delete source first
 3. **Single embedding model:** Changing model requires code change
 
+## Scheduler Commands
+
+```bash
+# Check for updates (weekly interval)
+brain update check
+brain update check --json
+
+# Run updates (only in download window 22:00-8:00 Moscow)
+brain update run
+brain update run --force  # Override window restriction
+
+# View scheduler status
+brain update status
+```
+
 ## Tested File Types
 
 **Code:** .rs, .py, .js, .ts, .go, .java, .c, .cpp, .h, .toml, .yaml, .json, .sql, .sh
@@ -121,9 +136,9 @@ base_url = "http://localhost:1234"
 
 ## Next Steps / TODO
 
-- [ ] Add more repos: dioxuslabs/dioxus, launchbadge/sqlx, iced-rs/iced
+- [x] Add more repos: dioxuslabs/dioxus, launchbadge/sqlx, iced-rs/iced
 - [ ] Test query endpoint with mistral.rs running
-- [ ] Consider adding incremental update support
+- [ ] Add incremental update support - avoid duplicates when re-indexing
 - [ ] Add embedding model configuration at runtime
 
 ## Build Commands
@@ -140,6 +155,7 @@ PROTOC=~/.local/bin/protoc PROTOC_INCLUDE=~/.local/share/protobuf cargo build --
 
 - **Repo clones:** `~/brain/data/repos/`
 - **Vector DB:** `~/brain/data/lancedb/`
+- **Source metadata:** `~/brain/data/source_metadata.json`
 - **Model cache:** `~/.cache/huggingface/hub/`
 
 ## Related Files

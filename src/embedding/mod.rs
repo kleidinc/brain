@@ -2,7 +2,7 @@ use anyhow::Result;
 use candle_core::{Device, Tensor};
 use candle_nn::VarBuilder;
 use candle_transformers::models::bert::{BertModel, Config as BertConfig};
-use hf_hub::{api::sync::Api, Repo};
+use hf_hub::{Repo, api::sync::Api};
 use tokenizers::Tokenizer;
 
 pub struct EmbeddingModel {

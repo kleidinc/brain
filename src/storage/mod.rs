@@ -1,12 +1,15 @@
 use anyhow::Result;
+use arrow_array::{
+    Array, FixedSizeListArray, Int64Array, RecordBatch, RecordBatchIterator, StringArray,
+    types::Float32Type,
+};
+use arrow_schema::{DataType, Field, Schema};
+use futures::StreamExt;
+use lancedb::connection::connect;
+use lancedb::query::{ExecutableQuery, QueryBase};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::sync::Arc;
-use arrow_array::{StringArray, Int64Array, Float32Array, FixedSizeListArray, RecordBatch, Array, types::Float32Type, RecordBatchIterator};
-use arrow_schema::{DataType, Field, Schema};
-use lancedb::connection::connect;
-use lancedb::query::{QueryBase, ExecutableQuery};
-use futures::StreamExt;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Document {
@@ -69,8 +72,14 @@ pub struct VectorStore {
 
 impl VectorStore {
     pub async fn new(db_path: &Path, table_name: &str, dimensions: usize) -> Result<Self> {
-        let db = connect(db_path.to_str().ok_or_else(|| anyhow::anyhow!("Invalid path"))?).execute().await?;
-        
+        let db = connect(
+            db_path
+                .to_str()
+                .ok_or_else(|| anyhow::anyhow!("Invalid path"))?,
+        )
+        .execute()
+        .await?;
+
         let store = Self {
             db,
             table_name: table_name.to_string(),
@@ -108,12 +117,12 @@ impl VectorStore {
             let batch = RecordBatch::new_empty(schema.clone());
             let batches: Vec<Result<RecordBatch, arrow_schema::ArrowError>> = vec![Ok(batch)];
             let reader = RecordBatchIterator::new(batches.into_iter(), schema);
-            
+
             self.db
                 .create_table(&self.table_name, reader)
                 .execute()
                 .await?;
-            
+
             tracing::info!("Created table: {}", self.table_name);
         }
 
@@ -127,16 +136,24 @@ impl VectorStore {
 
         let schema = self.schema();
 
-        let ids: StringArray = StringArray::from_iter_values(documents.iter().map(|d| d.id.as_str()));
-        let contents: StringArray = StringArray::from_iter_values(documents.iter().map(|d| d.content.as_str()));
-        let sources: StringArray = StringArray::from_iter_values(documents.iter().map(|d| d.source.as_str()));
-        let source_types: StringArray = StringArray::from_iter_values(documents.iter().map(|d| d.source_type.as_str()));
-        let file_paths: StringArray = StringArray::from_iter_values(documents.iter().map(|d| d.file_path.as_str()));
+        let ids: StringArray =
+            StringArray::from_iter_values(documents.iter().map(|d| d.id.as_str()));
+        let contents: StringArray =
+            StringArray::from_iter_values(documents.iter().map(|d| d.content.as_str()));
+        let sources: StringArray =
+            StringArray::from_iter_values(documents.iter().map(|d| d.source.as_str()));
+        let source_types: StringArray =
+            StringArray::from_iter_values(documents.iter().map(|d| d.source_type.as_str()));
+        let file_paths: StringArray =
+            StringArray::from_iter_values(documents.iter().map(|d| d.file_path.as_str()));
         let chunk_indices: Int64Array = documents.iter().map(|d| d.chunk_index).collect();
-        let created_ats: StringArray = StringArray::from_iter_values(documents.iter().map(|d| d.created_at.as_str()));
+        let created_ats: StringArray =
+            StringArray::from_iter_values(documents.iter().map(|d| d.created_at.as_str()));
 
         let embeddings = FixedSizeListArray::from_iter_primitive::<Float32Type, _, _>(
-            documents.iter().map(|d| Some(d.embedding.iter().map(|&v| Some(v)).collect::<Vec<_>>())),
+            documents
+                .iter()
+                .map(|d| Some(d.embedding.iter().map(|&v| Some(v)).collect::<Vec<_>>())),
             self.dimensions as i32,
         );
 
@@ -158,7 +175,7 @@ impl VectorStore {
         let batches: Vec<Result<RecordBatch, arrow_schema::ArrowError>> = vec![Ok(batch)];
         let reader = RecordBatchIterator::new(batches.into_iter(), self.schema());
         table.add(reader).execute().await?;
-        
+
         tracing::info!("Inserted {} documents", documents.len());
         Ok(())
     }
@@ -167,7 +184,7 @@ impl VectorStore {
         let table = self.db.open_table(&self.table_name).execute().await?;
 
         let query_vec = query_embedding.to_vec();
-        
+
         let mut stream = table
             .query()
             .nearest_to(query_vec)?
@@ -176,10 +193,10 @@ impl VectorStore {
             .await?;
 
         let mut results = Vec::new();
-        
+
         while let Some(batch) = stream.next().await {
             let batch = batch?;
-            
+
             let ids = batch
                 .column_by_name("id")
                 .and_then(|c| c.as_any().downcast_ref::<StringArray>())
@@ -234,11 +251,11 @@ impl VectorStore {
 
         while let Some(batch) = stream.next().await {
             let batch = batch?;
-            if let Some(col) = batch.column_by_name("source") {
-                if let Some(arr) = col.as_any().downcast_ref::<StringArray>() {
-                    for i in 0..arr.len() {
-                        sources.insert(arr.value(i).to_string());
-                    }
+            if let Some(col) = batch.column_by_name("source")
+                && let Some(arr) = col.as_any().downcast_ref::<StringArray>()
+            {
+                for i in 0..arr.len() {
+                    sources.insert(arr.value(i).to_string());
                 }
             }
         }

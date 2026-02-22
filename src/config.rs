@@ -8,6 +8,7 @@ pub struct Config {
     pub storage: StorageConfig,
     pub llm: LlmConfig,
     pub server: ServerConfig,
+    pub scheduler: SchedulerConfig,
     pub sources: SourcesConfig,
 }
 
@@ -45,6 +46,15 @@ pub struct LlmConfig {
 pub struct ServerConfig {
     pub host: String,
     pub port: u16,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SchedulerConfig {
+    pub check_interval_hours: u64,
+    pub download_window_start: u8,
+    pub download_window_end: u8,
+    pub timezone: String,
+    pub metadata_file: PathBuf,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

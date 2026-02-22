@@ -1,16 +1,14 @@
 use axum::{
+    Router,
     extract::Json,
     http::StatusCode,
     response::IntoResponse,
     routing::{delete, get, post},
-    Router,
 };
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
-
-use crate::rag::QueryResponse;
 
 pub struct AppState {
     pub pipeline: crate::rag::RagPipeline,
@@ -52,7 +50,11 @@ async fn query(
     state: axum::extract::State<Arc<AppState>>,
     Json(req): Json<QueryRequest>,
 ) -> impl IntoResponse {
-    match state.pipeline.query_with_sources(&req.query, req.limit).await {
+    match state
+        .pipeline
+        .query_with_sources(&req.query, req.limit)
+        .await
+    {
         Ok(response) => Json(response).into_response(),
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
@@ -80,9 +82,7 @@ async fn search(
     }
 }
 
-async fn list_sources(
-    state: axum::extract::State<Arc<AppState>>,
-) -> impl IntoResponse {
+async fn list_sources(state: axum::extract::State<Arc<AppState>>) -> impl IntoResponse {
     match state.pipeline.vector_store().list_sources().await {
         Ok(sources) => Json(sources).into_response(),
         Err(e) => (
@@ -99,7 +99,12 @@ async fn delete_source(
     state: axum::extract::State<Arc<AppState>>,
     axum::extract::Path(source): axum::extract::Path<String>,
 ) -> impl IntoResponse {
-    match state.pipeline.vector_store().delete_by_source(&source).await {
+    match state
+        .pipeline
+        .vector_store()
+        .delete_by_source(&source)
+        .await
+    {
         Ok(_) => Json(serde_json::json!({ "deleted": source })).into_response(),
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
@@ -111,14 +116,13 @@ async fn delete_source(
     }
 }
 
-async fn status(
-    state: axum::extract::State<Arc<AppState>>,
-) -> impl IntoResponse {
+async fn status(state: axum::extract::State<Arc<AppState>>) -> impl IntoResponse {
     match state.pipeline.vector_store().count().await {
         Ok(count) => Json(serde_json::json!({
             "status": "ok",
             "document_count": count
-        })).into_response(),
+        }))
+        .into_response(),
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(ErrorResponse {
