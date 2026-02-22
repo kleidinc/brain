@@ -1,0 +1,53 @@
+[brain]
+name = "brain"
+chunk_size = 512
+chunk_overlap = 50
+
+[embedding]
+model = "BAAI/bge-small-en-v1.5"
+dimensions = 384
+max_length = 512
+cuda_device = 1
+
+[storage]
+lancedb_path = "data/lancedb"
+table_name = "documents"
+
+[llm]
+provider = "mistralrs"
+base_url = "http://localhost:1234"
+model = "default"
+max_tokens = 2048
+temperature = 0.7
+
+[server]
+host = "127.0.0.1"
+port = 8080
+
+[sources]
+repos_path = "repos"
+
+[[sources.defaults]]
+owner = "rust-lang"
+repo = "rust"
+branch = "master"
+
+[[sources.defaults]]
+owner = "dioxuslabs"
+repo = "dioxus"
+branch = "main"
+
+[[sources.defaults]]
+owner = "postgres"
+repo = "postgres"
+branch = "master"
+
+[[sources.defaults]]
+owner = "launchbadge"
+repo = "sqlx"
+branch = "main"
+
+[[sources.defaults]]
+owner = "iced-rs"
+repo = "iced"
+branch = "master"

@@ -1,0 +1,4 @@
+$ca9ebd94-a968-4cf1-8ec4-b38bafac26a9²÷id ÿÿÿÿÿÿÿÿÿ*string8 content ÿÿÿÿÿÿÿÿÿ*string8source ÿÿÿÿÿÿÿÿÿ*string8$source_type ÿÿÿÿÿÿÿÿÿ*string8$	file_path ÿÿÿÿÿÿÿÿÿ*string08#chunk_index ÿÿÿÿÿÿÿÿÿ*int648#
+created_at ÿÿÿÿÿÿÿÿÿ*string85	embedding ÿÿÿÿÿÿÿÿÿ*fixed_size_list:float:3848"!
+lance.auto_cleanup.interval20"'
+lance.auto_cleanup.older_than14days
