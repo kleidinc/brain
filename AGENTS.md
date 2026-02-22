@@ -195,6 +195,69 @@ cargo fmt --check
 cargo test
 ```
 
+## Git / Commit / PR Workflow
+
+Follow this exact workflow — never propose a different one unless explicitly asked.
+
+### Branch naming
+- Use kebab-case: `fix/clippy-warnings`, `feat/async-client`, `chore/dependabot-cargo-update`
+- Prefixes (strongly preferred):
+  - `feat/`     new visible functionality
+  - `fix/`      bug fix
+  - `refactor/` pure code movement / no behavior change
+  - `chore/`    deps, ci, build scripts, formatting
+  - `docs/`     documentation only
+  - `test/`     tests only
+  - `perf/`     performance improvement
+
+### Commit messages
+- Conventional Commits (strongly preferred): https://www.conventionalcommits.org
+- Format: `<type>(<scope>): <short description>`
+- Good examples:
+  - `feat(http): add timeout configuration`
+  - `fix(parser): handle trailing commas in arrays`
+  - `refactor: extract error handling into FromResponse trait`
+  - `chore(deps): bump anyhow from 1.0.81 to 1.0.82`
+- First line ≤ 72 characters
+- Use imperative mood ("add", "fix", not "added", "fixed")
+- When relevant, add footer with `BREAKING CHANGE:` or `Closes #123`
+
+### Commit practices
+- One logical change per commit (small & focused)
+- Run at least `cargo fmt --all -- --check` and `cargo clippy --all-targets -- -D warnings` before committing
+- Prefer `cargo test` (or `./scripts/test.sh` if you have one) passes locally
+- No `fixup!` or `squash!` commits in the final PR branch
+
+### Pull Request rules
+- Title format: same as commit message style (e.g. `feat(cli): add --verbose flag`)
+- One PR = one feature / fix / refactor (avoid "mega PRs")
+- Link related issues: `Closes #42`, `Fixes #99`
+- Always include:
+  - Motivation / why this change
+  - How to test / reproduction steps
+  - Any breaking changes (call them out clearly)
+- After creating PR: run `cargo fmt --all`, `cargo clippy`, `cargo test` in CI
+
+### Rebasing & force-pushing
+- Keep history linear: rebase on main before merge (`git rebase -i origin/main`)
+- Allowed to force-push (`git push --force-with-lease`) during review
+- Never force-push after approval unless reviewer explicitly agrees
+
+### Forbidden patterns
+- Never commit `Cargo.lock` changes in a library crate (only in binary crates / examples / workspace root if needed)
+- Never push merge commits to feature branches
+- Never include `target/`, `.cargo/`, or personal dotfiles in PRs
+
+## Quick Git reminders for agents
+
+When you want to propose code changes:
+
+1. Create branch: `git checkout -b fix/xyz-issue`
+2. Make focused commits with conventional commit messages
+3. Run: `cargo fmt --all`, `cargo clippy --all-targets -- -D warnings`, `cargo test`
+4. Push & open PR with good title + description
+5. Rebase on main before asking for final review
+
 ## Related Documentation
 
 - `~/remember/brain_glm5.md` - Technical paper
