@@ -567,14 +567,19 @@ async fn handle_update_status(config: &Config, scheduler: &Scheduler) -> Result<
 
 async fn handle_serve(config: &Config, host: &str, port: u16) -> Result<()> {
     let pipeline = init_pipeline(config).await?;
-    let state = Arc::new(AppState { pipeline });
+    let state = Arc::new(AppState {
+        pipeline,
+        config: config.clone(),
+    });
 
     println!("Starting brain server on {}:{}", host, port);
     println!("Endpoints:");
-    println!("  POST /query   - Query the brain with RAG");
-    println!("  POST /search  - Search for similar documents");
-    println!("  GET  /sources - List indexed sources");
-    println!("  GET  /status  - Get system status");
+    println!("  POST /query          - Query the brain with RAG");
+    println!("  POST /search         - Search for similar documents");
+    println!("  GET  /sources        - List indexed sources");
+    println!("  POST /sources/github - Add GitHub source");
+    println!("  POST /sources/local  - Add local source");
+    println!("  GET  /status         - Get system status");
 
     server::run_server(state, host, port).await
 }
